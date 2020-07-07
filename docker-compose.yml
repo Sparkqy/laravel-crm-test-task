@@ -1,0 +1,66 @@
+version: "3.4"
+services:
+  app:
+    build:
+      args:
+        user: docker
+        uid: 1000
+      context: ./docker/app
+    container_name: laravel-crm-test-task_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    environment:
+      XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1"
+      PHP_IDE_CONFIG: "serverName=Docker"
+    networks:
+      - app
+
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: laravel-crm-test-task_nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./src:/var/www
+      - ./docker/config/nginx:/etc/nginx/conf.d
+    networks:
+      - app
+
+  db:
+    image: mysql:5.7
+    container_name: laravel-crm-test-task_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel_crm_test_task_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: root
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker/data/database:/var/lib/mysql
+    networks:
+      - app
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel-crm-test-task_pma
+    links:
+      - db
+    ports:
+      - 8765:80
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
+    ipam:
+      driver: default

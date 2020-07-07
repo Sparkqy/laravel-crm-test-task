@@ -1,0 +1,20 @@
+# Environment deps.
+/.env*
+
+# IDEs
+/nbproject
+/.idea
+
+# Temp dirs & trash
+/temp
+/tmp
+/build
+/.build
+.DS_Store
+
+# etc.
+*.cache
+/gl-*-report.json
+
+# docker database data
+docker/data/database
